@@ -15,6 +15,9 @@ RUN node /tmp/link-profile.cjs && pnpm install --ignore-workspace
 FROM node:24-bookworm-slim
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=8787 \
     DSH_HARNESS=/opt/dsh DSH_HOME=/opt/dsh/.dsh-home
+# curl: Coolify's container health check shells out to it.
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
 COPY --from=harness /opt/dsh /opt/dsh
 WORKDIR /app/server
 COPY server/package.json server/package-lock.json ./

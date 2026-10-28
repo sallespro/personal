@@ -14,7 +14,9 @@ const EMAIL = "hello@cloudpilot.com.br";
 const api = (() => {
   const p = new URLSearchParams(location.search).get("api");
   const m = document.querySelector('meta[name="chat-api"]')?.content;
-  const base = p ?? window.CHAT_API ?? m ?? (location.protocol.startsWith("http") && !/github\.io$/.test(location.hostname) ? location.origin : "");
+  // Served by the backend itself (any non-GitHub-Pages http origin): same origin wins over the meta tag.
+  const own = location.protocol.startsWith("http") && !/github\.io$/.test(location.hostname) ? location.origin : undefined;
+  const base = p ?? window.CHAT_API ?? own ?? m ?? "";
   return base.replace(/\/$/, "");
 })();
 

@@ -452,6 +452,14 @@ function pastePlain(e) {
   e.preventDefault();
   document.execCommand("insertText", false, e.clipboardData.getData("text/plain"));
 }
+/* "Let's talk": opens the chat widget when loaded; otherwise falls back to the mailto link. */
+function openChat(e) {
+  if (!window.CloudpilotChat) return guardLink(e);
+  e.preventDefault();
+  if (e.detail > 1 || e.currentTarget.querySelector("[contenteditable='true']")) return; // double click edits the label
+  window.dispatchEvent(new Event("cloudpilot:chat-open"));
+}
+
 function guardLink(e) {
   // a single click on a link navigates; a double click (to edit its label) must not
   if (e.detail > 1 || e.currentTarget.querySelector("[contenteditable='true']")) { e.preventDefault(); return; }
@@ -563,7 +571,7 @@ const Footer = () => h("footer", { class: "footer" },
     Feature("lock", "f2Title", "f2Desc"),
     Feature("target", "f3Title", "f3Desc"),
     h("div", { class: "cta" },
-      h("a", { class: "cta-btn", href: `mailto:${text.email}?subject=${encodeURIComponent(UI[lang].mailSubject)}`, onclick: guardLink },
+      h("a", { class: "cta-btn", "data-testid": "lets-talk", href: `mailto:${text.email}?subject=${encodeURIComponent(UI[lang].mailSubject)}`, onclick: openChat },
         Icon("chat"), E("span", "ctaLabel")),
       E("p", "ctaText"),
     ),
@@ -633,5 +641,6 @@ function render() {
 render();
 document.fonts?.ready.then(fitPageToFlyer);
 </script>
+<script type="module" src="chat-widget.js"></script>
 </body>
 </html>

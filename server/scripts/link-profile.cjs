@@ -2,8 +2,15 @@
 // packages (relative links, so the image can live at any path) and clear any stale install.
 const fs = require('node:fs')
 
+// `dsh plugin add` would fetch the npm sdk-app (0.1.x), which 0.2.x rejects, so scaffold the
+// profile by hand: an empty root tree, an empty patch layer (the server mounts its own
+// --patch overlay at runtime) and a hoisted standalone pnpm workspace.
+fs.writeFileSync('cordis.yml', '[]\n')
+fs.writeFileSync('cordis.patch.yml', '[]\n')
+fs.writeFileSync('pnpm-workspace.yaml', 'packages:\n  - .\n\nnodeLinker: hoisted\nautoInstallPeers: false\n')
+
 const link = (dir) => 'link:../../../' + dir
-const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'))
+const pkg = { name: 'dsh-profile-sdk', private: true }
 pkg.dependencies = {
   '@deepseek-ai/dsh-base': link('packages/bundle/base'),
   '@deepseek-ai/dsh-sdk-app': link('packages/bundle/sdk-app'),
